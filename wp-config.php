@@ -33,7 +33,7 @@ define( 'DB_PASSWORD', '123' );
 define( 'DB_HOST', 'localhost' );
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
-$table_prefix = 'wp_'; // edit this with your local table prefix
+$table_prefix = 'w_'; // edit this with your local table prefix
 
 /**#@+
  * Authentication Unique Keys and Salts.
