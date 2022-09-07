@@ -61,3 +61,15 @@ function add_nav_menu_settings_button( $items ) {
 
 add_filter( 'wp_nav_menu_items', 'add_nav_menu_settings_button', 10 );
 
+// function that sends an email to the website administrator every time someone updates their profile.
+add_action( 'profile_update', 'my_profile_update', 10, 2 );
+
+function my_profile_update( $user_id, $old_user_data ) {
+	$to      = get_option( 'admin_email' );
+	$subject = "user_id: $user_id - update profile";
+	$body    = "user_id: $user_id - update profile";
+	$headers = array( 'Content-Type: text/html; charset = UTF - 8' );
+
+	wp_mail( $to, $subject, $body, $headers );
+
+}
