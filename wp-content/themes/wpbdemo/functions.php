@@ -25,5 +25,25 @@ function custom_sidebars() {
 	register_sidebar( $args );
 
 }
-	add_action( 'widgets_init', 'custom_sidebars' );
+add_action( 'widgets_init', 'custom_sidebars' );
 
+	add_filter( 'the_content', 'test1' );
+
+function test1( $content ) {
+
+	return $content . '<div>Two</div>';
+}
+
+	add_filter( 'the_content', 'test2', 8 );
+
+function test2( $content ) {
+
+	return $content . '<div>One</div>';
+}
+
+	add_filter( 'the_content', 'test3', 9 );
+
+function test3( $content ) {
+
+	return $content . '<div>Three</div>';
+}
