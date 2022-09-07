@@ -27,7 +27,8 @@ function custom_sidebars() {
 }
 add_action( 'widgets_init', 'custom_sidebars' );
 
-	add_filter( 'the_content', 'test1' );
+// Use a predefined filter and learn about filter priority
+add_filter( 'the_content', 'test1' );
 
 function test1( $content ) {
 
@@ -47,3 +48,16 @@ function test3( $content ) {
 
 	return $content . '<div>Three</div>';
 }
+
+// "Profile settings" in the navigation menu, displayed only for logged in users
+function add_nav_menu_settings_button( $items ) {
+	if ( is_user_logged_in() ) {
+		$items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page">
+		<a href="/wp-admin/profile.php">Profile settings</a>
+		</li>';
+	}
+	return $items;
+}
+
+add_filter( 'wp_nav_menu_items', 'add_nav_menu_settings_button', 10 );
+
