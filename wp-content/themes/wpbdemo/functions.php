@@ -32,7 +32,7 @@ add_action( 'widgets_init', 'custom_sidebars' );
 function my_filter( $content ) {
 
 	if ( is_singular() ) {
-		esc_html_e( 'This is my filter', 'twentytwentychild' );
+		esc_html_e( 'This is my filter', 'wpbdemo' );
 	}
 }
 
