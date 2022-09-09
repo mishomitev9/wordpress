@@ -15,8 +15,8 @@ function custom_sidebars() {
 
 	$args = array(
 		'id'            => 'custom_sidebar',
-		'name'          => __( 'Custom Widget Area', 'text_domain' ),
-		'description'   => __( 'A custom widget area', 'text_domain' ),
+		'name'          => __( 'Custom Widget Area', 'wpbdemo' ),
+		'description'   => __( 'A custom widget area', 'wpbdemo' ),
 		'before_title'  => '<h3 class="widget-title">',
 		'after_title'   => '</h3>',
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
