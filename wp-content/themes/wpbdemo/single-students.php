@@ -20,10 +20,15 @@ get_header();
 
 		while ( have_posts() ) {
 			the_post();
+			$testarr = get_post_custom();
+			// $testarr['_birth_dates'];
 
-			the_post_thumbnail();
+			echo $testarr['_birth_dates'];
+			the_post_thumbnail( array( 50, 50 ) );
 			the_title();
 			the_excerpt();
+
+
 
 
 		}

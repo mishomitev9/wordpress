@@ -195,10 +195,11 @@ function student_status_custom_box() {
 function student_status_custom_box_html( $post ) {
 
 	$status_student = get_post_meta( $post->ID, '_student_status', true );
+	var_dump( $status_student );
 	?>
 <label for="student_status_field">Student status: </label>
 	<select name="student_status_field" id="student_status_field" >
-		<option id="student_active_status" name="student_active_status" value="active">Active</option>
+		<option id="student_active_status" name="student_active_status" value="active" <?php selected( $status_student, 'active' ); ?>>Active</option>
 		<option id="student_inactive_status" name="student_inactive_status" value="inactive" <?php selected( $status_student, 'inactive' ); ?>>Inactive</option>
 	</select>
 	<?php
