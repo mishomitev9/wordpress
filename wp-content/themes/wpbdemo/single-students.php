@@ -22,17 +22,16 @@ get_header();
 			the_post();
 
 			$country_city_metabox = get_post_meta( get_the_ID(), '_class_country', true );
-
-			$address_box_metabox = get_post_meta( get_the_ID(), '_address_box', true );
-
-			$class_grade_metabox = get_post_meta( get_the_ID(), '_class_grade', true );
-
-			$birth_date_metabox = get_post_meta( get_the_ID(), '_birth_date', true );
+			$address_box_metabox  = get_post_meta( get_the_ID(), '_address_box', true );
+			$class_grade_metabox  = get_post_meta( get_the_ID(), '_class_grade', true );
+			$birth_date_metabox   = get_post_meta( get_the_ID(), '_birth_date', true );
 
 			the_title();
-			echo ' live in' . " $country_city_metabox " . "and his address is $address_box_metabox. ";
-			echo "He is student in $class_grade_metabox grade. ";
-			echo "His birth date is: $birth_date_metabox Y-M-D";
+			?>
+			<p>live in <?php echo esc_html( $country_city_metabox ); ?> and his address is <?php echo esc_html( $address_box_metabox ); ?></p>
+			<p>He is student in <?php echo esc_html( $class_grade_metabox ); ?> grade.</p>
+			<p>His birth date is: <?php echo esc_html( $birth_date_metabox ); ?> Y-M-D</p>
+			<?php
 			the_post_thumbnail( array( 50, 50 ) );
 			the_excerpt();
 
