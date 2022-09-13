@@ -15,8 +15,8 @@ function custom_sidebars() {
 
 	$args = array(
 		'id'            => 'custom_sidebar',
-		'name'          => __( 'Custom Widget Area', 'text_domain' ),
-		'description'   => __( 'A custom widget area', 'text_domain' ),
+		'name'          => __( 'Custom Widget Area', 'wpbdemo' ),
+		'description'   => __( 'A custom widget area', 'wpbdemo' ),
 		'before_title'  => '<h3 class="widget-title">',
 		'after_title'   => '</h3>',
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
@@ -25,5 +25,88 @@ function custom_sidebars() {
 	register_sidebar( $args );
 
 }
-	add_action( 'widgets_init', 'custom_sidebars' );
+add_action( 'widgets_init', 'custom_sidebars' );
 
+	add_filter( 'the_content', 'my_filter' );
+
+function my_filter( $content ) {
+
+	if ( is_singular() ) {
+		esc_html_e( 'This is my filter', 'wpbdemo' );
+	}
+}
+
+// Use a predefined filter and learn about filter priority
+add_filter( 'the_content', 'test1' );
+
+function test1( $content ) {
+
+	return $content . '<div>Two</div>';
+}
+
+	add_filter( 'the_content', 'test2', 8 );
+
+function test2( $content ) {
+
+	return $content . '<div>One</div>';
+}
+
+	add_filter( 'the_content', 'test3', 9 );
+
+function test3( $content ) {
+
+	return $content . '<div>Three</div>';
+}
+
+// "Profile settings" in the navigation menu, displayed only for logged in users
+function add_nav_menu_settings_button( $items ) {
+	if ( is_user_logged_in() ) {
+		$items .= '<li class="menu-item menu-item-type-post_type menu-item-object-page">
+		<a href="/wp-admin/profile.php">Profile settings</a>
+		</li>';
+	}
+	return $items;
+}
+
+add_filter( 'wp_nav_menu_items', 'add_nav_menu_settings_button', 10 );
+
+// function that sends an email to the website administrator every time someone updates their profile.
+add_action( 'profile_update', 'my_profile_update', 10, 2 );
+
+function my_profile_update( $user_id, $old_user_data ) {
+	$to      = get_option( 'admin_email' );
+	$subject = "user_id: $user_id - update profile";
+	$body    = "user_id: $user_id - update profile";
+	$headers = array( 'Content-Type: text/html; charset = UTF - 8' );
+
+	wp_mail( $to, $subject, $body, $headers );
+
+}
+// FUNCTIONS
+
+ add_image_size( 'featured_preview', 55, 55, true );
+
+// GET FEATURED IMAGE
+function ST4_get_featured_image( $post_ID ) {
+	$post_thumbnail_id = get_post_thumbnail_id( $post_ID );
+	if ( $post_thumbnail_id ) {
+		 $post_thumbnail_img = wp_get_attachment_image_src( $post_thumbnail_id, 'featured_preview' );
+		 return $post_thumbnail_img[0];
+	}
+}
+
+// ADD NEW COLUMN
+function ST4_columns_head( $defaults ) {
+	$defaults['featured_image'] = 'Featured Image';
+	return $defaults;
+}
+
+// SHOW THE FEATURED IMAGE
+function ST4_columns_content( $column_name, $post_ID ) {
+	if ( $column_name == 'featured_image' ) {
+		 $post_featured_image = ST4_get_featured_image( $post_ID );
+		if ( $post_featured_image ) {
+			 echo '<img src="' . $post_featured_image . '" width="55" height="55" />';
+		}
+	}
+}
