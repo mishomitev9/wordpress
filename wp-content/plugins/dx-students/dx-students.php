@@ -68,8 +68,8 @@ if ( ! function_exists( 'custom_post_type' ) ) {
 	}
 	add_action( 'init', 'custom_post_type' );
 }
-add_filter( 'manage_posts_columns', 'ST4_columns_head' );
-add_action( 'manage_posts_custom_column', 'ST4_columns_content', 10, 2 );
+ add_filter( 'manage_posts_columns', 'ST4_columns_head' );
+ add_action( 'manage_posts_custom_column', 'ST4_columns_content', 10, 2 );
 
 
 // Add Additional Meta Boxes
@@ -187,7 +187,7 @@ function save_birth_date_custom_box_data( $post_id ) {
 add_action( 'save_post', 'save_birth_date_custom_box_data' );
 
 
-// Active / Inactive - meta box
+// Active / Inactive student status - meta box
 function student_status_custom_box() {
 	add_meta_box( 'student_status_custom_box_id', 'Active status', 'student_status_custom_box_html', 'students' );
 }
@@ -195,7 +195,6 @@ function student_status_custom_box() {
 function student_status_custom_box_html( $post ) {
 
 	$status_student = get_post_meta( $post->ID, '_student_status', true );
-	var_dump( $status_student );
 	?>
 <label for="student_status_field">Student status: </label>
 	<select name="student_status_field" id="student_status_field" >
@@ -207,7 +206,7 @@ function student_status_custom_box_html( $post ) {
 
 add_action( 'add_meta_boxes', 'student_status_custom_box' );
 
-// Save Class / Grade custom data
+// Save Student Status
 function save_student_status_data( $post_id ) {
 
 	if ( array_key_exists( 'student_status_field', $_POST ) ) {
@@ -219,3 +218,175 @@ function save_student_status_data( $post_id ) {
 	}
 }
 add_action( 'save_post', 'save_student_status_data' );
+
+
+// Add submenu in settings
+add_action( 'admin_menu', 'students_settings' );
+function students_settings() {
+	add_submenu_page(
+		'options-general.php',
+		'Students settings',
+		'Students settings',
+		'administrator',
+		'cspd-imdb-options',
+		'students_settings_page'
+	);
+}
+
+
+// Content page Setting / Student Settings
+function students_settings_page() {
+	?>
+	<h1>This is the page content</h1>
+ <?php } ?>
+
+ <?php
+
+	/**
+	 * @internal never define functions inside callbacks.
+	 * these functions could be run multiple times; this would result in a fatal error.
+	 * custom option and settings
+	 */
+	function wporg_settings_init() {
+		// Register a new setting for "dx_students" page.
+		register_setting( 'dx_students', 'wporg_options' );
+
+		// Register a new section in the "dx_students" page.
+		add_settings_section(
+			'wporg_section_developers',
+			__( 'Choose one or many.', 'dx_students' ),
+			'wporg_section_developers_callback',
+			'dx_students'
+		);
+
+		// Register a new field in the "dx_students" section, inside the "dx_students" page.
+		add_settings_field(
+			'wporg_field_pill', // As of WP 4.6 this value is used only internally.
+			// Use $args' label_for to populate the id inside the callback.
+			__( 'Pill', 'dx_students' ),
+			'wporg_field_pill_cb',
+			'dx_students',
+			'wporg_section_developers',
+			array(
+				'label_for'         => 'wporg_field_pill',
+				'class'             => 'wporg_row',
+				'wporg_custom_data' => 'custom',
+			)
+		);
+	}
+
+	/**
+	 * Register our wporg_settings_init to the admin_init action hook.
+	 */
+	add_action( 'admin_init', 'wporg_settings_init' );
+
+
+	/**
+	 * Custom option and settings:
+	 *  - callback functions
+	 */
+
+
+	/**
+	 * Developers section callback function.
+	 *
+	 * @param array $args  The settings array, defining title, id, callback.
+	 */
+	function wporg_section_developers_callback( $args ) {
+		?>
+	<p id="<?php echo esc_attr( $args['id'] ); ?>"><?php esc_html_e( 'Select from the dropdown.', 'dx_students' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Pill field callbakc function.
+	 *
+	 * WordPress has magic interaction with the following keys: label_for, class.
+	 * - the "label_for" key value is used for the "for" attribute of the <label>.
+	 * - the "class" key value is used for the "class" attribute of the <tr> containing the field.
+	 * Note: you can add custom key value pairs to be used inside your callbacks.
+	 *
+	 * @param array $args
+	 */
+	function wporg_field_pill_cb( $args ) {
+		// Get the value of the setting we've registered with register_setting()
+		$options = get_option( 'wporg_options' );
+		?>
+	<select
+			id="<?php echo esc_attr( $args['label_for'] ); ?>"
+			data-custom="<?php echo esc_attr( $args['wporg_custom_data'] ); ?>"
+			name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]">
+		<option value="red" <?php echo isset( $options[ $args['label_for'] ] ) ? ( selected( $options[ $args['label_for'] ], 'red', false ) ) : ( '' ); ?>>
+			<?php esc_html_e( 'red pill', 'dx_students' ); ?>
+		</option>
+		 <option value="blue" <?php echo isset( $options[ $args['label_for'] ] ) ? ( selected( $options[ $args['label_for'] ], 'blue', false ) ) : ( '' ); ?>>
+			<?php esc_html_e( 'blue pill', 'dx_students' ); ?>
+		</option>
+	</select>
+	<p class="description">
+		<?php esc_html_e( 'You take the blue pill and the story ends.', 'dx_students' ); ?>
+	</p>
+	<p class="description">
+		<?php esc_html_e( 'You take the red pill and you stay in Wonderland.', 'dx_students' ); ?>
+	</p>
+		<?php
+	}
+
+	/**
+	 * Add the top level menu page.
+	 */
+	function wporg_options_page() {
+		add_menu_page(
+			'Hide/Show students metaboxes',
+			'Students Options',
+			'manage_options',
+			'dx_students',
+			'wporg_options_page_html'
+		);
+	}
+
+
+	/**
+	 * Register our wporg_options_page to the admin_menu action hook.
+	 */
+	add_action( 'admin_menu', 'wporg_options_page' );
+
+
+	/**
+	 * Top level menu callback function
+	 */
+	function wporg_options_page_html() {
+		// check user capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		// add error/update messages
+
+		// check if the user have submitted the settings
+		// WordPress will add the "settings-updated" $_GET parameter to the url
+		if ( isset( $_GET['settings-updated'] ) ) {
+			// add settings saved message with the class of "updated"
+			add_settings_error( 'wporg_messages', 'wporg_message', __( 'Settings Saved', 'dx_students' ), 'updated' );
+		}
+
+		// show error/update messages
+		settings_errors( 'wporg_messages' );
+		?>
+	<div class="wrap">
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<form action="options.php" method="post">
+			<?php
+			// output security fields for the registered setting "wporg"
+			settings_fields( 'dx_students' );
+			// output setting sections and their fields
+			// (sections are registered for "dx_students", each field is registered to a specific section)
+			do_settings_sections( 'dx_students' );
+			// output save settings button
+			submit_button( 'Save Settings' );
+			?>
+		</form>
+	</div>
+		<?php
+	}
+
