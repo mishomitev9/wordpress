@@ -20,21 +20,25 @@ get_header();
 
 		while ( have_posts() ) {
 			the_post();
-			$testarr = get_post_custom();
-			// $testarr['_birth_dates'];
 
-			echo $testarr['_birth_dates'];
-			the_post_thumbnail( array( 50, 50 ) );
+			$country_city_metabox = get_post_meta( get_the_ID(), '_class_country', true );
+
+			$address_box_metabox = get_post_meta( get_the_ID(), '_address_box', true );
+
+			$class_grade_metabox = get_post_meta( get_the_ID(), '_class_grade', true );
+
+			$birth_date_metabox = get_post_meta( get_the_ID(), '_birth_date', true );
+
 			the_title();
+			echo ' live in' . " $country_city_metabox " . "and his address is $address_box_metabox. ";
+			echo "He is student in $class_grade_metabox grade. ";
+			echo "His birth date is: $birth_date_metabox Y-M-D";
+			the_post_thumbnail( array( 50, 50 ) );
 			the_excerpt();
-
-
-
 
 		}
 	}
 	?>
-
 
 </main>
 

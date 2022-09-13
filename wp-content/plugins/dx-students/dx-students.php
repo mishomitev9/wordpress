@@ -167,7 +167,7 @@ function birth_date_custom_box() {
 
 function birth_date_custom_box_html( $post ) {
 
-	$birth_date = get_post_meta( $post->ID, '_birth_dates', true );
+	$birth_date = get_post_meta( $post->ID, '_birth_date', true );
 
 	echo '<input class="components-text-control__input" type="date"  id="birth_date" name="birth_date" autocomplete="off" spellcheck="false" value="' . esc_html( $birth_date ) . '">';
 }
@@ -181,7 +181,7 @@ function save_birth_date_custom_box_data( $post_id ) {
 	$my_data = sanitize_text_field( $_POST['birth_date'] );
 
 	// Update the meta field in the database.
-	update_post_meta( $post_id, '_birth_dates', $my_data );
+	update_post_meta( $post_id, '_birth_date', $my_data );
 }
 
 add_action( 'save_post', 'save_birth_date_custom_box_data' );
