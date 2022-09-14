@@ -28,25 +28,36 @@ get_header();
 
 			the_title();
 			$options = get_option( 'wporg_options' );
-			var_dump( $options );
-			echo $options;
-			if ( $options == 'show' ) {
 
+			if ( $options['country'] == 'show' ) {
+				echo ' from ' . esc_html( $country_city_metabox ) . ' ';
+			} else {
+				echo 'Hidden country';
+			}
+			if ( $options['address'] == 'show' ) {
+				echo 'Address: ' . esc_html( $address_box_metabox );
+
+			} else {
+				echo ' and Hidden address';
 			}
 			?>
-
-			<p>live in <?php echo esc_html( $country_city_metabox ); ?> and his address is 
-								  <?php
-									if ( $options == 'show' ) {
-										echo esc_html( $address_box_metabox );
-
-									} else {
-										echo 'Hidden ';
-									}
-									?>
+			<p>He is student in 
+			<?php
+			if ( $options['grade'] == 'show' ) {
+				echo esc_html( $class_grade_metabox ); } else {
+				echo 'hidden ';
+				}
+				?>
+			 grade.</p>
+			<p>His birth date is: 
+			<?php
+			if ( $options['birth'] == 'show' ) {
+				echo esc_html( $birth_date_metabox ) . 'Y-M-D';
+			} else {
+				echo ' hidden ';
+			}
+			?>
 			</p>
-			<p>He is student in <?php echo esc_html( $class_grade_metabox ); ?> grade.</p>
-			<p>His birth date is: <?php echo esc_html( $birth_date_metabox ); ?> Y-M-D</p>
 			<?php
 			the_post_thumbnail( array( 50, 50 ) );
 			the_excerpt();
