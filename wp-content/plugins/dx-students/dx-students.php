@@ -196,7 +196,7 @@ function student_status_custom_box_html( $post ) {
 
 	$status_student = get_post_meta( $post->ID, '_student_status', true );
 	?>
-<label for="student_status_field">Student status: </label>
+	<label for="student_status_field">Student status: </label>
 	<select name="student_status_field" id="student_status_field" >
 		<option id="student_active_status" name="student_active_status" value="active" <?php selected( $status_student, 'active' ); ?>>Active</option>
 		<option id="student_inactive_status" name="student_inactive_status" value="inactive" <?php selected( $status_student, 'inactive' ); ?>>Inactive</option>
@@ -242,6 +242,7 @@ function students_settings_page() {
 
  <?php
 
+
 	/**
 	 * @internal never define functions inside callbacks.
 	 * these functions could be run multiple times; this would result in a fatal error.
@@ -255,24 +256,42 @@ function students_settings_page() {
 		add_settings_section(
 			'wporg_section_developers',
 			__( 'Choose one or many.', 'dx_students' ),
-			'wporg_section_developers_callback',
+			'__return_false',
 			'dx_students'
 		);
-
-		// Register a new field in the "dx_students" section, inside the "dx_students" page.
-		add_settings_field(
-			'wporg_field_pill', // As of WP 4.6 this value is used only internally.
-			// Use $args' label_for to populate the id inside the callback.
-			__( 'Pill', 'dx_students' ),
-			'wporg_field_pill_cb',
-			'dx_students',
-			'wporg_section_developers',
+		$settings_fields = array(
 			array(
-				'label_for'         => 'wporg_field_pill',
-				'class'             => 'wporg_row',
-				'wporg_custom_data' => 'custom',
-			)
+				'id'    => 'country',
+				'label' => 'Country',
+			),
+			array(
+				'id'    => 'address',
+				'label' => 'Address',
+			),
+			array(
+				'id'    => 'grade',
+				'label' => 'Grade',
+			),
+			array(
+				'id'    => 'birth',
+				'label' => 'Birth',
+			),
 		);
+
+		foreach ( $settings_fields as $field ) {
+			add_settings_field(
+				$field['id'],
+				// Use $args' label_for to populate the id inside the callback.
+				__( $field['label'], 'dx_students' ), //phpcs:ignore
+				'dx_settings_field_callback',
+				'dx_students',
+				'wporg_section_developers',
+				array(
+					'label_for' => $field['id'],
+					'label'     => $field['label'],
+				)
+			);
+		}
 	}
 
 	/**
@@ -280,56 +299,18 @@ function students_settings_page() {
 	 */
 	add_action( 'admin_init', 'wporg_settings_init' );
 
-
-	/**
-	 * Custom option and settings:
-	 *  - callback functions
-	 */
-
-
-	/**
-	 * Developers section callback function.
-	 *
-	 * @param array $args  The settings array, defining title, id, callback.
-	 */
-	function wporg_section_developers_callback( $args ) {
+	function dx_settings_field_callback( $args ) {
+		$options     = get_option( 'wporg_options' );
+		$saved_value = ! empty( $options[ $args['label_for'] ] ) ? $options[ $args['label_for'] ] : '';
 		?>
-	<p id="<?php echo esc_attr( $args['id'] ); ?>"><?php esc_html_e( 'Select from the dropdown.', 'dx_students' ); ?></p>
+		<label for="wporg_options">Show / Hide - <?php echo esc_html( $args['label'] ); ?></label>
+		<select name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]" >
+			<option id="show_student_status" name="show_student_status" value="show" <?php selected( $saved_value, 'show' ); ?>>Show</option>
+			<option id="hide_student_status" name="hide_student_status" value="hide" <?php selected( $saved_value, 'hide' ); ?>>Hide</option>
+		</select>
 		<?php
-	}
+		echo 'Current status: ' . $saved_value;
 
-	/**
-	 * Pill field callbakc function.
-	 *
-	 * WordPress has magic interaction with the following keys: label_for, class.
-	 * - the "label_for" key value is used for the "for" attribute of the <label>.
-	 * - the "class" key value is used for the "class" attribute of the <tr> containing the field.
-	 * Note: you can add custom key value pairs to be used inside your callbacks.
-	 *
-	 * @param array $args
-	 */
-	function wporg_field_pill_cb( $args ) {
-		// Get the value of the setting we've registered with register_setting()
-		$options = get_option( 'wporg_options' );
-		?>
-	<select
-			id="<?php echo esc_attr( $args['label_for'] ); ?>"
-			data-custom="<?php echo esc_attr( $args['wporg_custom_data'] ); ?>"
-			name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]">
-		<option value="red" <?php echo isset( $options[ $args['label_for'] ] ) ? ( selected( $options[ $args['label_for'] ], 'red', false ) ) : ( '' ); ?>>
-			<?php esc_html_e( 'red pill', 'dx_students' ); ?>
-		</option>
-		 <option value="blue" <?php echo isset( $options[ $args['label_for'] ] ) ? ( selected( $options[ $args['label_for'] ], 'blue', false ) ) : ( '' ); ?>>
-			<?php esc_html_e( 'blue pill', 'dx_students' ); ?>
-		</option>
-	</select>
-	<p class="description">
-		<?php esc_html_e( 'You take the blue pill and the story ends.', 'dx_students' ); ?>
-	</p>
-	<p class="description">
-		<?php esc_html_e( 'You take the red pill and you stay in Wonderland.', 'dx_students' ); ?>
-	</p>
-		<?php
 	}
 
 	/**
@@ -344,7 +325,6 @@ function students_settings_page() {
 			'wporg_options_page_html'
 		);
 	}
-
 
 	/**
 	 * Register our wporg_options_page to the admin_menu action hook.
@@ -378,11 +358,11 @@ function students_settings_page() {
 		<form action="options.php" method="post">
 			<?php
 			// output security fields for the registered setting "wporg"
-			settings_fields( 'dx_students' );
+			// settings_fields( 'dx_students' );
 			// output setting sections and their fields
 			// (sections are registered for "dx_students", each field is registered to a specific section)
+			settings_fields( 'dx_students' );
 			do_settings_sections( 'dx_students' );
-			// output save settings button
 			submit_button( 'Save Settings' );
 			?>
 		</form>

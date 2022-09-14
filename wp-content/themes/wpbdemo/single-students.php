@@ -27,8 +27,24 @@ get_header();
 			$birth_date_metabox   = get_post_meta( get_the_ID(), '_birth_date', true );
 
 			the_title();
+			$options = get_option( 'wporg_options' );
+			var_dump( $options );
+			echo $options;
+			if ( $options == 'show' ) {
+
+			}
 			?>
-			<p>live in <?php echo esc_html( $country_city_metabox ); ?> and his address is <?php echo esc_html( $address_box_metabox ); ?></p>
+
+			<p>live in <?php echo esc_html( $country_city_metabox ); ?> and his address is 
+								  <?php
+									if ( $options == 'show' ) {
+										echo esc_html( $address_box_metabox );
+
+									} else {
+										echo 'Hidden ';
+									}
+									?>
+			</p>
 			<p>He is student in <?php echo esc_html( $class_grade_metabox ); ?> grade.</p>
 			<p>His birth date is: <?php echo esc_html( $birth_date_metabox ); ?> Y-M-D</p>
 			<?php
