@@ -224,23 +224,16 @@ add_action( 'save_post', 'save_student_status_data' );
 add_action( 'admin_menu', 'students_settings' );
 function students_settings() {
 	add_submenu_page(
-		'options-general.php',
-		'Students settings',
-		'Students settings',
+		'edit.php?post_type=students',
+		'AJAX Settings',
+		'AJAX Settings',
 		'administrator',
 		'cspd-imdb-options',
-		'students_settings_page'
+		'wporg_options_page_html'
 	);
 }
 
-
 // Content page Setting / Student Settings
-function students_settings_page() {
-	?>
-	<h1>This is the page content</h1>
- <?php } ?>
-
- <?php
 
 
 	/**
@@ -248,61 +241,61 @@ function students_settings_page() {
 	 * these functions could be run multiple times; this would result in a fatal error.
 	 * custom option and settings
 	 */
-	function wporg_settings_init() {
-		// Register a new setting for "dx_students" page.
-		register_setting( 'dx_students', 'wporg_options' );
+function wporg_settings_init() {
+	// Register a new setting for "dx_students" page.
+	register_setting( 'dx_students', 'wporg_options' );
 
-		// Register a new section in the "dx_students" page.
-		add_settings_section(
+	// Register a new section in the "dx_students" page.
+	add_settings_section(
+		'wporg_section_developers',
+		__( 'Choose one or many.', 'dx_students' ),
+		'__return_false',
+		'dx_students'
+	);
+	$settings_fields = array(
+		array(
+			'id'    => 'country',
+			'label' => 'Country',
+		),
+		array(
+			'id'    => 'address',
+			'label' => 'Address',
+		),
+		array(
+			'id'    => 'grade',
+			'label' => 'Grade',
+		),
+		array(
+			'id'    => 'birth',
+			'label' => 'Birth',
+		),
+	);
+
+	foreach ( $settings_fields as $field ) {
+		add_settings_field(
+			$field['id'],
+			// Use $args' label_for to populate the id inside the callback.
+		__( $field['label'], 'dx_students' ), //phpcs:ignore
+			'dx_settings_field_callback',
+			'dx_students',
 			'wporg_section_developers',
-			__( 'Choose one or many.', 'dx_students' ),
-			'__return_false',
-			'dx_students'
+			array(
+				'label_for' => $field['id'],
+				'label'     => $field['label'],
+			)
 		);
-		$settings_fields = array(
-			array(
-				'id'    => 'country',
-				'label' => 'Country',
-			),
-			array(
-				'id'    => 'address',
-				'label' => 'Address',
-			),
-			array(
-				'id'    => 'grade',
-				'label' => 'Grade',
-			),
-			array(
-				'id'    => 'birth',
-				'label' => 'Birth',
-			),
-		);
-
-		foreach ( $settings_fields as $field ) {
-			add_settings_field(
-				$field['id'],
-				// Use $args' label_for to populate the id inside the callback.
-				__( $field['label'], 'dx_students' ), //phpcs:ignore
-				'dx_settings_field_callback',
-				'dx_students',
-				'wporg_section_developers',
-				array(
-					'label_for' => $field['id'],
-					'label'     => $field['label'],
-				)
-			);
-		}
 	}
+}
 
 	/**
 	 * Register our wporg_settings_init to the admin_init action hook.
 	 */
 	add_action( 'admin_init', 'wporg_settings_init' );
 
-	function dx_settings_field_callback( $args ) {
-		$options     = get_option( 'wporg_options' );
-		$saved_value = ! empty( $options[ $args['label_for'] ] ) ? $options[ $args['label_for'] ] : '';
-		?>
+function dx_settings_field_callback( $args ) {
+	$options     = get_option( 'wporg_options' );
+	$saved_value = ! empty( $options[ $args['label_for'] ] ) ? $options[ $args['label_for'] ] : '';
+	?>
 		<label for="wporg_options">Show / Hide - <?php echo esc_html( $args['label'] ); ?></label>
 		<select name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]" >
 			<option id="show_student_status" name="show_student_status" value="show" <?php selected( $saved_value, 'show' ); ?>>Show</option>
@@ -311,20 +304,20 @@ function students_settings_page() {
 		<?php
 		echo 'Current status: ' . $saved_value;
 
-	}
+}
 
 	/**
 	 * Add the top level menu page.
 	 */
-	function wporg_options_page() {
-		add_menu_page(
-			'Hide/Show students metaboxes',
-			'Students Options',
-			'manage_options',
-			'dx_students',
-			'wporg_options_page_html'
-		);
-	}
+function wporg_options_page() {
+	add_menu_page(
+		'Hide/Show students metaboxes',
+		'Students Options',
+		'manage_options',
+		'dx_students',
+		'wporg_options_page_html'
+	);
+}
 
 	/**
 	 * Register our wporg_options_page to the admin_menu action hook.
@@ -335,38 +328,69 @@ function students_settings_page() {
 	/**
 	 * Top level menu callback function
 	 */
-	function wporg_options_page_html() {
-		// check user capabilities
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
+function wporg_options_page_html() {
+	// check user capabilities
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
 
-		// add error/update messages
+	// add error/update messages
 
-		// check if the user have submitted the settings
-		// WordPress will add the "settings-updated" $_GET parameter to the url
-		if ( isset( $_GET['settings-updated'] ) ) {
-			// add settings saved message with the class of "updated"
-			add_settings_error( 'wporg_messages', 'wporg_message', __( 'Settings Saved', 'dx_students' ), 'updated' );
-		}
+	// check if the user have submitted the settings
+	// WordPress will add the "settings-updated" $_GET parameter to the url
+	if ( isset( $_GET['settings-updated'] ) ) {
+		// add settings saved message with the class of "updated"
+		add_settings_error( 'wporg_messages', 'wporg_message', __( 'Settings Saved', 'dx_students' ), 'updated' );
+	}
 
-		// show error/update messages
-		settings_errors( 'wporg_messages' );
-		?>
+	// show error/update messages
+	settings_errors( 'wporg_messages' );
+	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 		<form action="options.php" method="post">
-			<?php
-			// output security fields for the registered setting "wporg"
-			// settings_fields( 'dx_students' );
-			// output setting sections and their fields
-			// (sections are registered for "dx_students", each field is registered to a specific section)
-			settings_fields( 'dx_students' );
-			do_settings_sections( 'dx_students' );
-			submit_button( 'Save Settings' );
-			?>
+		<?php
+		// output security fields for the registered setting "wporg"
+		// settings_fields( 'dx_students' );
+		// output setting sections and their fields
+		// (sections are registered for "dx_students", each field is registered to a specific section)
+		settings_fields( 'dx_students' );
+		do_settings_sections( 'dx_students' );
+		submit_button( 'Save Settings' );
+		?>
 		</form>
 	</div>
 		<?php
+}
+
+	// TODO AJAX
+
+	add_action( 'admin_enqueue_scripts', 'my_enqueue' );
+
+	/**
+	 * Enqueue my scripts and assets.
+	 *
+	 * @param $hook
+	 */
+function my_enqueue( $hook ) {
+	if ( 'students_page_cspd-imdb-options' !== $hook ) {
+		return;
 	}
+	wp_enqueue_script(
+		'ajax-script',
+		plugins_url( '/js/myjquery.js', __FILE__ ),
+		array( 'jquery' ),
+		'1.0.0',
+		true
+	);
+
+	wp_localize_script(
+		'ajax-script',
+		'my_ajax_obj',
+		array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce'    => wp_create_nonce( 'title_example' ),
+		)
+	);
+}
 
