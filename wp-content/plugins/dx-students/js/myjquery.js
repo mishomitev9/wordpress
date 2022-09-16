@@ -1,15 +1,16 @@
-console.log("123");
 jQuery(document).ready(function ($) {          //wrapper
-   $(".pref").change(function () {             //event
-      var this2 = this;                     //use in callback
-      $.post(my_ajax_obj.ajax_url, {         //POST request
-         _ajax_nonce: my_ajax_obj.nonce,     //nonce
-         action: "my_tag_count",            //action
-         title: this.value                  //data
-      }, function (data) {                    //callback
-         this2.nextSibling.remove();        //remove current title
-         $(this2).after(data);              //insert server response
-      }
-      );
-   });
+   $("#select").on('change', (function () {             //event
+      var show_hide_status = $("#select").val();                     //use in callback
+      console.log(show_hide_status);
+      $.ajax({
+         method: "POST",
+         url: my_ajax_obj.ajax_url,
+         data: {
+            action: "",
+            value: ""
+         }
+      }).success((data) => {
+
+      });
+   }));
 });

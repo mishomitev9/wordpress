@@ -297,15 +297,32 @@ function dx_settings_field_callback( $args ) {
 	$saved_value = ! empty( $options[ $args['label_for'] ] ) ? $options[ $args['label_for'] ] : '';
 	?>
 		<label for="wporg_options">Show / Hide - <?php echo esc_html( $args['label'] ); ?></label>
-		<select name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]" >
-			<option id="show_student_status" name="show_student_status" value="show" <?php selected( $saved_value, 'show' ); ?>>Show</option>
-			<option id="hide_student_status" name="hide_student_status" value="hide" <?php selected( $saved_value, 'hide' ); ?>>Hide</option>
+		<select id='select' name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]" >
+			<option class="pref" id="show_student_status" name="show_student_status" value="show" <?php selected( $saved_value, 'show' ); ?>>Show</option>
+			<option class="pref" id="hide_student_status" name="hide_student_status" value="hide" <?php selected( $saved_value, 'hide' ); ?>>Hide</option>
 		</select>
 		<?php
 		echo 'Current status: ' . $saved_value;
-
 }
+	// TODO Ajax action start
 
+
+add_action( 'wp_ajax_my_tag_count', 'my_ajax_handler' );
+
+/**
+ * AJAX handler not using JSON.
+ */
+function my_ajax_handler() {
+
+	// update_user_meta( get_current_user_id(), 'title_preference', sanitize_post_title( $_POST['title'] ) );
+	// $arguments      = array(
+	// 'tag' => $_POST['title'],
+	// );
+	// $the_query = new WP_Query( $arguments );
+	// echo esc_html( $_POST['title'] ) . ' (' . $the_query->post_count . ') ';
+	wp_die(); // All ajax handlers should die when finished
+}
+// TODO Ajax action end
 	/**
 	 * Add the top level menu page.
 	 */
