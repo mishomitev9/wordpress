@@ -293,34 +293,40 @@ function wporg_settings_init() {
 	add_action( 'admin_init', 'wporg_settings_init' );
 
 function dx_settings_field_callback( $args ) {
+
 	$options     = get_option( 'wporg_options' );
 	$saved_value = ! empty( $options[ $args['label_for'] ] ) ? $options[ $args['label_for'] ] : '';
 	?>
 		<label for="wporg_options">Show / Hide - <?php echo esc_html( $args['label'] ); ?></label>
-		<select id='select' name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]" >
+		<select data-field="<?php echo esc_attr( $args['label_for'] ); ?>" class="my_select" name="wporg_options[<?php echo esc_attr( $args['label_for'] ); ?>]" >
 			<option class="pref" id="show_student_status" name="show_student_status" value="show" <?php selected( $saved_value, 'show' ); ?>>Show</option>
 			<option class="pref" id="hide_student_status" name="hide_student_status" value="hide" <?php selected( $saved_value, 'hide' ); ?>>Hide</option>
 		</select>
 		<?php
-		echo 'Current status: ' . $saved_value;
 }
 	// TODO Ajax action start
 
 
-add_action( 'wp_ajax_my_tag_count', 'my_ajax_handler' );
+add_action( 'wp_ajax_misho_action', 'my_ajax_handler' );
 
 /**
  * AJAX handler not using JSON.
  */
 function my_ajax_handler() {
+	if ( ! empty( $_POST['status'] ) && ! empty( $_POST['field'] ) ) {
+		$status = sanitize_text_field( $_POST['status'] );
 
-	// update_user_meta( get_current_user_id(), 'title_preference', sanitize_post_title( $_POST['title'] ) );
-	// $arguments      = array(
-	// 'tag' => $_POST['title'],
-	// );
-	// $the_query = new WP_Query( $arguments );
-	// echo esc_html( $_POST['title'] ) . ' (' . $the_query->post_count . ') ';
-	// wp_die(); // All ajax handlers should die when finished
+		$options = get_option( 'wporg_options' );
+
+		if ( ! empty( $options[ $_POST['field'] ] ) ) {
+			$options[ $_POST['field'] ] = $status;
+		}
+
+		update_option( 'wporg_options', $options );
+
+		wp_send_json_success();
+	}
+	wp_send_json_error();
 }
 // TODO Ajax action end
 	/**
@@ -362,6 +368,7 @@ function wporg_options_page_html() {
 
 	// show error/update messages
 	settings_errors( 'wporg_messages' );
+
 	?>
 	<div class="wrap">
 		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>

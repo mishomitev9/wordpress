@@ -1,16 +1,15 @@
 jQuery(document).ready(function ($) {          //wrapper
-   $("#select").on('change', (function () {             //event
-      var show_hide_status = $("#select").val();                     //use in callback
-      console.log(show_hide_status);
+   $(".my_select").on('change', (function (e) {             //event
+      const select = $(e.target);
+      //use in callback
       $.ajax({
          method: "POST",
          url: my_ajax_obj.ajax_url,
          data: {
-            action: "",
-            value: ""
+            action: "misho_action",
+            status: select.val(),
+            field: select.data('field')
          }
-      }).success((data) => {
-
       });
    }));
 });
