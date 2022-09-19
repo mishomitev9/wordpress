@@ -320,7 +320,7 @@ function my_ajax_handler() {
 	// );
 	// $the_query = new WP_Query( $arguments );
 	// echo esc_html( $_POST['title'] ) . ' (' . $the_query->post_count . ') ';
-	wp_die(); // All ajax handlers should die when finished
+	// wp_die(); // All ajax handlers should die when finished
 }
 // TODO Ajax action end
 	/**
