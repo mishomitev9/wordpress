@@ -11,6 +11,10 @@
  * Text Domain:       wpbdemo
  */
 
+
+ require_once 'feature-image-column.php';
+ // require_once 'feature-checkbox-column.php';
+
 if ( ! function_exists( 'custom_post_type' ) ) {
 
 	function custom_post_type() {
@@ -68,9 +72,6 @@ if ( ! function_exists( 'custom_post_type' ) ) {
 	}
 	add_action( 'init', 'custom_post_type' );
 }
- add_filter( 'manage_posts_columns', 'ST4_columns_head' );
- add_action( 'manage_posts_custom_column', 'ST4_columns_content', 10, 2 );
-
 
 // Add Additional Meta Boxes
 

@@ -45,7 +45,7 @@ get_header();
 			<?php
 			if ( $options['grade'] == 'show' ) {
 				echo esc_html( $class_grade_metabox ); } else {
-				echo 'hidden ';
+				echo ' hidden ';
 				}
 				?>
 			 grade.</p>
