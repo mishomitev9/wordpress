@@ -11,8 +11,8 @@
  * Text Domain:       wpbdemo
  */
 
-
  require_once 'feature-image-column.php';
+// require_once 'feature-checkbox-column.php';
  // require_once 'feature-checkbox-column.php';
 
 if ( ! function_exists( 'custom_post_type' ) ) {
@@ -236,7 +236,6 @@ function students_settings() {
 
 // Content page Setting / Student Settings
 
-
 	/**
 	 * @internal never define functions inside callbacks.
 	 * these functions could be run multiple times; this would result in a fatal error.
@@ -305,8 +304,7 @@ function dx_settings_field_callback( $args ) {
 		</select>
 		<?php
 }
-	// TODO Ajax action start
-
+	// Ajax action start
 
 add_action( 'wp_ajax_misho_action', 'my_ajax_handler' );
 
@@ -388,8 +386,6 @@ function wporg_options_page_html() {
 		<?php
 }
 
-	// TODO AJAX
-
 	add_action( 'admin_enqueue_scripts', 'my_enqueue' );
 
 	/**
@@ -419,3 +415,19 @@ function my_enqueue( $hook ) {
 	);
 }
 
+/* Display custom column stickiness */
+function display_posts_column_check( $column, $post_id ) {
+	if ( $column == 'sticky' ) {
+		 echo '<input type="checkbox" disabled', ( is_sticky( $post_id ) ? ' checked' : '' ), '/>';
+	}
+}
+add_action( 'manage_posts_custom_column', 'display_posts_column_check', 10, 2 );
+
+/* Add custom column to post list */
+function add_sticky_column( $columns ) {
+	return array_merge(
+		$columns,
+		array( 'sticky' => __( 'Active', 'your_text_domain' ) )
+	);
+}
+add_filter( 'manage_posts_columns', 'add_sticky_column' );
