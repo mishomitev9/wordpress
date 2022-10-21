@@ -418,7 +418,8 @@ function my_enqueue( $hook ) {
 /* Display custom column stickiness */
 function display_posts_column_check( $column, $post_id ) {
 	if ( $column == 'sticky' ) {
-		 echo '<input type="checkbox" disabled', ( is_sticky( $post_id ) ? ' checked' : '' ), '/>';
+		$status_student = get_post_meta( $post_id, '_student_status', true );
+		 echo '<input type="checkbox" ' . ( checked( $status_student, 'active', false ) ) . '/>';
 	}
 }
 add_action( 'manage_posts_custom_column', 'display_posts_column_check', 10, 2 );
