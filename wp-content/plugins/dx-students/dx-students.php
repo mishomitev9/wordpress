@@ -394,7 +394,9 @@ function wporg_options_page_html() {
 	 * @param $hook
 	 */
 function my_enqueue( $hook ) {
-	if ( 'students_page_cspd-imdb-options' !== $hook ) {
+	var_dump( $hook );
+	// die();
+	if ( 'students_page_cspd-imdb-options' !== $hook && 'edit.php' !== $hook ) {
 		return;
 	}
 	wp_enqueue_script(
@@ -415,20 +417,42 @@ function my_enqueue( $hook ) {
 	);
 }
 
-/* Display custom column stickiness */
+/* Display custom column  */
 function display_posts_column_check( $column, $post_id ) {
-	if ( $column == 'sticky' ) {
+	if ( $column == 'student_status' ) {
 		$status_student = get_post_meta( $post_id, '_student_status', true );
-		 echo '<input type="checkbox" ' . ( checked( $status_student, 'active', false ) ) . '/>';
+		 echo '<input type="checkbox" class="student_status_check" data-student-id="' . esc_attr( $post_id ) . '" ' . ( checked( $status_student, 'active', false ) ) . '/>';
 	}
 }
 add_action( 'manage_posts_custom_column', 'display_posts_column_check', 10, 2 );
 
 /* Add custom column to post list */
-function add_sticky_column( $columns ) {
+function add_student_status_column( $columns ) {
 	return array_merge(
 		$columns,
-		array( 'sticky' => __( 'Active', 'your_text_domain' ) )
+		array( 'student_status' => __( 'Active', 'your_text_domain' ) )
 	);
 }
-add_filter( 'manage_posts_columns', 'add_sticky_column' );
+add_filter( 'manage_posts_columns', 'add_student_status_column' );
+
+// AJAX save status
+add_action( 'wp_ajax_save_ajax_status', 'save_active_meta_box_status_ajax' );
+
+function save_active_meta_box_status_ajax() {
+
+	check_ajax_referer( 'students_settings', 'nonce' );
+
+	$post_id = sanitize_text_field( $_POST['post-id'] );
+	$active  = sanitize_text_field( $_POST['active'] );
+
+	$status = '';
+
+	if ( $active === 'true' ) {
+		$status = 'active';
+	}
+
+	// Update the meta field in the database.
+	update_post_meta( $post_id, '_student_status', $status );
+
+	wp_send_json_success();
+}
