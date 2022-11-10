@@ -11,6 +11,10 @@
  * Text Domain:       wpbdemo
  */
 
+ require_once 'feature-image-column.php';
+// require_once 'feature-checkbox-column.php';
+ // require_once 'feature-checkbox-column.php';
+
 if ( ! function_exists( 'custom_post_type' ) ) {
 
 	function custom_post_type() {
@@ -68,9 +72,6 @@ if ( ! function_exists( 'custom_post_type' ) ) {
 	}
 	add_action( 'init', 'custom_post_type' );
 }
- add_filter( 'manage_posts_columns', 'ST4_columns_head' );
- add_action( 'manage_posts_custom_column', 'ST4_columns_content', 10, 2 );
-
 
 // Add Additional Meta Boxes
 
@@ -235,7 +236,6 @@ function students_settings() {
 
 // Content page Setting / Student Settings
 
-
 	/**
 	 * @internal never define functions inside callbacks.
 	 * these functions could be run multiple times; this would result in a fatal error.
@@ -304,8 +304,7 @@ function dx_settings_field_callback( $args ) {
 		</select>
 		<?php
 }
-	// TODO Ajax action start
-
+	// Ajax action start
 
 add_action( 'wp_ajax_misho_action', 'my_ajax_handler' );
 
@@ -387,8 +386,6 @@ function wporg_options_page_html() {
 		<?php
 }
 
-	// TODO AJAX
-
 	add_action( 'admin_enqueue_scripts', 'my_enqueue' );
 
 	/**
@@ -397,7 +394,9 @@ function wporg_options_page_html() {
 	 * @param $hook
 	 */
 function my_enqueue( $hook ) {
-	if ( 'students_page_cspd-imdb-options' !== $hook ) {
+	var_dump( $hook );
+	// die();
+	if ( 'students_page_cspd-imdb-options' !== $hook && 'edit.php' !== $hook ) {
 		return;
 	}
 	wp_enqueue_script(
@@ -418,3 +417,42 @@ function my_enqueue( $hook ) {
 	);
 }
 
+/* Display custom column  */
+function display_posts_column_check( $column, $post_id ) {
+	if ( $column == 'student_status' ) {
+		$status_student = get_post_meta( $post_id, '_student_status', true );
+		 echo '<input type="checkbox" class="student_status_check" data-student-id="' . esc_attr( $post_id ) . '" ' . ( checked( $status_student, 'active', false ) ) . '/>';
+	}
+}
+add_action( 'manage_posts_custom_column', 'display_posts_column_check', 10, 2 );
+
+/* Add custom column to post list */
+function add_student_status_column( $columns ) {
+	return array_merge(
+		$columns,
+		array( 'student_status' => __( 'Active', 'your_text_domain' ) )
+	);
+}
+add_filter( 'manage_posts_columns', 'add_student_status_column' );
+
+// AJAX save status
+add_action( 'wp_ajax_save_ajax_status', 'save_active_meta_box_status_ajax' );
+
+function save_active_meta_box_status_ajax() {
+
+	check_ajax_referer( 'students_settings', 'nonce' );
+
+	$post_id = sanitize_text_field( $_POST['post-id'] );
+	$active  = sanitize_text_field( $_POST['active'] );
+
+	$status = '';
+
+	if ( $active === 'true' ) {
+		$status = 'active';
+	}
+
+	// Update the meta field in the database.
+	update_post_meta( $post_id, '_student_status', $status );
+
+	wp_send_json_success();
+}
